@@ -1,0 +1,38 @@
+select count(*) 
+from yellow_taxi_data 
+where DATE_TRUNC('day',tpep_pickup_datetime) = '2021-01-1
+
+select DATE_TRUNC('day',tpep_pickup_datetime) tip_day,max(tip_amount) max_tip 
+from yellow_taxi_data 
+where DATE_TRUNC('month',tpep_pickup_datetime) = '2021-01-01' 
+group by DATE_TRUNC('day',tpep_pickup_datetime) 
+order by max(tip_amount) desc
+limit 1
+
+
+with tab_1 as (select tpep_pickup_datetime,PULocationID
+    from zonal_data z
+    join yellow_taxi_data y
+    on z.LocationID = y.PULocationID
+    where date_trunc('day',tpep_pickup_datetime) = '2021-01-14'
+    and z.Zone = "Central Park"),
+
+ tab_2 as (select tpep_pickup_datetime,DOLocationID
+    from zonal_data z
+    join yellow_taxi_data y
+    on z.LocationID = y.DOLocationID
+    where date_trunc('day',tpep_pickup_datetime) = '2021-01-14')
+    
+select DOLocationID, count(DOLocationID)
+from tab_1 t1
+join tab_2 t2
+on t1.tpep_pickup_datetime = t2.tpep_pickup_datetime
+group by DOLocationID
+order by 2 desc
+limit 1
+
+select DOLocationID, PULocationID, avg(total_amount) 
+from yellow_taxi_data 
+group by DOLocationID, PULocationID 
+order by avg(total_amount) desc 
+limit 1
