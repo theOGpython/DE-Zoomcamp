@@ -1,7 +1,9 @@
+-----------------------How many taxi trips were there on January 15?------------------
 select count(*) 
 from yellow_taxi_data 
 where DATE_TRUNC('day',tpep_pickup_datetime) = '2021-01-1
 
+-----------------------Largest tip for each day----------------------------------
 select DATE_TRUNC('day',tpep_pickup_datetime) tip_day,max(tip_amount) max_tip 
 from yellow_taxi_data 
 where DATE_TRUNC('month',tpep_pickup_datetime) = '2021-01-01' 
@@ -9,7 +11,7 @@ group by DATE_TRUNC('day',tpep_pickup_datetime)
 order by max(tip_amount) desc
 limit 1
 
-
+------------------------What was the most popular destination for passengers picked up in central park on January 14?---------------
 with tab_1 as (select tpep_pickup_datetime,PULocationID
     from zonal_data z
     join yellow_taxi_data y
@@ -30,7 +32,7 @@ on t1.tpep_pickup_datetime = t2.tpep_pickup_datetime
 group by DOLocationID
 order by 2 desc
 limit 1
-
+-----------------------What's the pickup-dropoff pair with the largest average price for a ride---------------------------------
 select DOLocationID, PULocationID, avg(total_amount) 
 from yellow_taxi_data 
 group by DOLocationID, PULocationID 
