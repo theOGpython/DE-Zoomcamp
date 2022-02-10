@@ -1,0 +1,40 @@
+----THIS CREATES AN EXTERNAL TABLE on GCS
+
+CREATE OR REPLACE EXTERNAL TABLE `western-cirrus-339817.nytaxi.fhv_trip_data`
+OPTIONS (
+  format = 'parquet',
+  uris = [
+        'gs://dtc_data_lake_western-cirrus-339817/raw/fhv_tripdata/2019/*' 
+        ]
+);
+
+-------CREATING A NON-PARTITIONED TABLE FROM AN EXTERNAL TABLE
+CREATE OR REPLACE TABLE western-cirrus-339817.nytaxi.fhv_trip_data_non_partitioned AS
+SELECT * FROM western-cirrus-339817.nytaxi.fhv_trip_data;
+
+-------CREATING A PARTITIONED TABLE FROM AN EXTERNAL TABLE
+
+CREATE OR REPLACE TABLE western-cirrus-339817.nytaxi.fhv_trip_data_partitioned 
+PARTITION BY DATE(pickup_datetime) AS
+SELECT * FROM western-cirrus-339817.nytaxi.fhv_trip_data;
+
+-------CREATING A PARTITIONED CLUSTERED TABLE FROM AN EXTERNAL TABLE
+
+CREATE OR REPLACE TABLE western-cirrus-339817.nytaxi.fhv_trip_data_partitioned_clustered 
+PARTITION BY DATE(pickup_datetime) 
+CLUSTER BY dispatching_base_num AS
+SELECT * FROM western-cirrus-339817.nytaxi.fhv_trip_data;
+
+-----------COUNT OF FHV VEHICLES FOR YEAR 2019
+
+select count(*) from western-cirrus-339817.nytaxi.fhv_trip_data_non_partitioned;
+
+-----------COUNT OF DISTINCT dispatch_base_num for FHV VEHICLES FOR 2019
+
+SELECT (DISTINCT dispatch_base_num) FROM western-cirrus-339817.nytaxi.fhv_trip_data_non_partitioned;
+
+-----------COUNT OF DISTINCT dispatch_base_num for FHV VEHICLES FOR 2019
+
+SELECT COUNT(*) FROM western-cirrus-339817.nytaxi.fhv_trip_data_partitioned_clustered
+WHERE pickup_datetime BETWEEN '2019-01-01' AND '2019-03-31'
+AND dispatching_base_num IN ('B00987','B02060','B02279');
